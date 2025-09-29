@@ -1,0 +1,105 @@
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:trust_track/services/auth_service.dart';
+import 'package:trust_track/constants.dart';
+import 'package:flutter_up/services/up_navigation.dart';
+import 'package:flutter_up/locator.dart';
+
+PreferredSizeWidget customAppBar(
+  BuildContext context,
+  String title,
+  String? userName,
+) {
+  final user = FirebaseAuth.instance.currentUser;
+
+  return AppBar(
+    backgroundColor: const Color.fromARGB(255, 240, 239, 247),
+    elevation: 0,
+    title: GestureDetector(
+      onTap: () async {
+        final role = await AuthService().getUserRole();
+
+        if (role == "agent") {
+          ServiceManager<UpNavigationService>().navigateToNamed(
+            Routes.agentHomeage,
+          );
+        } else if (role == "client") {
+          ServiceManager<UpNavigationService>().navigateToNamed(
+            Routes.clientHomepage,
+          );
+        } else {
+          // fallback → if role not found, maybe go to login
+          ServiceManager<UpNavigationService>().navigateToNamed(
+            Routes.loginSignup,
+          );
+        }
+      },
+      child: SizedBox(
+        width: 150,
+        height: 90,
+        child: Image.asset("assets/images/logo.PNG"),
+      ),
+    ),
+    actions: [
+      if (user != null) ...[
+        PopupMenuButton<String>(
+          onSelected: (value) async {
+            if (value == 'logout') {
+              await AuthService().logout();
+              ServiceManager<UpNavigationService>().navigateToNamed(
+                Routes.loginSignup,
+              );
+            } else if (value == 'settings') {}
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'settings',
+              child: Row(
+                children: [
+                  Icon(Icons.settings, color: Color.fromARGB(255, 93, 69, 218)),
+                  SizedBox(width: 8),
+                  Text("Settings", style: TextStyle(fontFamily: 'Poppins')),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'logout',
+              child: Row(
+                children: [
+                  Icon(Icons.logout, color: Color.fromARGB(255, 93, 69, 218)),
+                  SizedBox(width: 8),
+                  Text("Logout", style: TextStyle(fontFamily: 'Poppins')),
+                ],
+              ),
+            ),
+          ],
+          child: Row(
+            children: [
+              CircleAvatar(
+                child: Icon(Icons.menu, color: Colors.deepPurple.shade700),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+        ),
+      ] else ...[
+        TextButton.icon(
+          onPressed: () {
+            ServiceManager<UpNavigationService>().navigateToNamed(
+              Routes.loginSignup,
+            );
+          },
+          icon: const Icon(
+            Icons.login,
+            color: Color.fromARGB(255, 93, 69, 218),
+          ),
+          label: const Text(
+            "Login",
+            style: TextStyle(color: Color.fromARGB(255, 93, 69, 218)),
+          ),
+        ),
+      ],
+      const SizedBox(width: 8),
+    ],
+  );
+}

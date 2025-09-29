@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "656248853849",
+    "project_id": "trust-track",
+    "storage_bucket": "trust-track.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656248853849:android:9ec5babd65a2f391c0e848",
+        "android_client_info": {
+          "package_name": "com.example.trust_track"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4sm8Uc6_67MQP2sIghgkBiAa2Izhweik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
