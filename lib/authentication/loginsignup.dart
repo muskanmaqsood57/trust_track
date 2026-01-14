@@ -55,7 +55,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
                     child: SizedBox(
                       height: 100,
                       width: 180,
-                      child: Image.asset("assets/images/logo.PNG"),
+                      child: Image.asset("assets/images/logo.png"),
                     ),
                   ),
                 ),

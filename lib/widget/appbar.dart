@@ -33,7 +33,7 @@ PreferredSizeWidget customAppBar(BuildContext context, String title) {
       child: SizedBox(
         width: 150,
         height: 90,
-        child: Image.asset("assets/images/logo.PNG"),
+        child: Image.asset("assets/images/logo.png"),
       ),
     ),
     actions: [
