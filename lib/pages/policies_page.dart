@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_up/config/up_config.dart';
 import 'package:flutter_up/locator.dart';
 import 'package:flutter_up/services/up_navigation.dart';
 import 'package:trust_track/constants.dart';
 import 'package:trust_track/models/policy.dart';
-import 'package:trust_track/pages/subscribed_policies_page.dart';
 import 'package:trust_track/services/auth_service.dart';
 import 'package:trust_track/services/policies_services.dart';
 import 'package:trust_track/services/subscription_service.dart';
@@ -123,28 +123,6 @@ class _PoliciesPageState extends State<PoliciesPage> {
     ).showSnackBar(SnackBar(content: Text("Subscribed to ${policy.name}!")));
   }
 
-  Future<void> _unsubscribeFromPolicy(Policy policy) async {
-    if (_userId == null) return;
-
-    final query = await _firestore
-        .collection('user_policies')
-        .where('userId', isEqualTo: _userId)
-        .where('policyId', isEqualTo: policy.id)
-        .get();
-
-    for (var doc in query.docs) {
-      await doc.reference.delete();
-    }
-
-    setState(() {
-      _subscribedPolicyIds.remove(policy.id);
-    });
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("Unsubscribed from ${policy.name}")));
-  }
-
   void _showAddPolicyDialog() {
     final nameController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -202,7 +180,7 @@ class _PoliciesPageState extends State<PoliciesPage> {
                       _buildInputField(
                         controller: priceController,
                         label: "Price (Rs)",
-                        icon: Icons.currency_rupee_outlined,
+                        icon: Icons.local_atm,
                         keyboardType: TextInputType.number,
                       ),
                       const SizedBox(height: 10),
@@ -557,7 +535,7 @@ class _PoliciesPageState extends State<PoliciesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, "Policies"),
+      appBar: customAppBar(context, "Policies", backRoute: _userRole == "agent" ? Routes.agentHomeage : Routes.clientHomepage),
       body: Column(
         children: [
           // 🔍 Search bar + Add button row
@@ -565,43 +543,63 @@ class _PoliciesPageState extends State<PoliciesPage> {
             padding: const EdgeInsets.all(12.0),
             child: Row(
               children: [
-                // Search TextField
+                // Search Box takes available width
                 Expanded(
-                  child: TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value.toLowerCase();
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: "Search policies...",
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.grey),
+                  child: Material(
+                    elevation: 2,
+                    borderRadius: BorderRadius.circular(12),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: "Search clients...",
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.grey,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
+                      style: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 14,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value.toLowerCase();
+                        });
+                      },
                     ),
                   ),
                 ),
 
-                // Add Policy button (only for agents)
-                if (_userRole == "agent") ...[
-                  const SizedBox(width: 10),
+                const SizedBox(width: 10),
+
+                // Action Buttons
+                if (_userRole == "agent")
                   ElevatedButton.icon(
-                    onPressed: _showAddPolicyDialog, // function defined below
+                    onPressed: _showAddPolicyDialog,
                     icon: const Icon(Icons.add),
                     label: const Text("Add Policy"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 93, 69, 218),
+                      backgroundColor: const Color(0xFF5D45DA),
                       foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ],
 
-                if (_userRole == "client") ...[
-                  const SizedBox(width: 10),
+                if (_userRole == "client")
                   ElevatedButton.icon(
                     onPressed: () {
                       ServiceManager<UpNavigationService>().navigateToNamed(
@@ -611,11 +609,17 @@ class _PoliciesPageState extends State<PoliciesPage> {
                     icon: const Icon(Icons.list_alt),
                     label: const Text("My Subscriptions"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 93, 69, 218),
+                      backgroundColor: const Color(0xFF5D45DA),
                       foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ],
               ],
             ),
           ),
@@ -644,7 +648,7 @@ class _PoliciesPageState extends State<PoliciesPage> {
                             color: Color.fromARGB(255, 93, 69, 218),
                             size: 32,
                           ),
-                          title: Row(
+                          title: Wrap(
                             children: [
                               Text(
                                 policy.name,
@@ -681,31 +685,67 @@ class _PoliciesPageState extends State<PoliciesPage> {
                               ),
                               const SizedBox(height: 4),
                               if (_userRole == "client")
-                                ElevatedButton(
-                                  onPressed:
-                                      _subscribedPolicyIds.contains(policy.id)
-                                      ? null
-                                      : () => _showPaymentDialog(
-                                          policy,
-                                        ), // show payment dialog before subscribing
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
+                                SizedBox(
+                                  height: 36,
+                                  child: ElevatedButton(
+                                    onPressed:
                                         _subscribedPolicyIds.contains(policy.id)
-                                        ? Colors.grey
-                                        : const Color.fromARGB(
-                                            255,
-                                            93,
-                                            69,
-                                            218,
-                                          ),
-                                    foregroundColor: Colors.white,
-                                    minimumSize: const Size(80, 30),
-                                    padding: const EdgeInsets.all(8),
+                                        ? null
+                                        : () => _showPaymentDialog(
+                                            policy,
+                                          ), // show payment dialog before subscribing
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          _subscribedPolicyIds.contains(policy.id)
+                                          ? Colors.grey
+                                          : const Color.fromARGB(
+                                              255,
+                                              93,
+                                              69,
+                                              218,
+                                            ),
+                                      foregroundColor: Colors.white,
+                                      minimumSize: const Size(80, 30),
+                                      padding: const EdgeInsets.all(8),
+                                    ),
+                                    child: Text(
+                                      overflow: TextOverflow.ellipsis,
+                                      isSubscribed ? "Subscribed" : "Subscribe",
+                                      style: const TextStyle(
+                                        fontFamily: "Poppins",
+                                      ),
+                                    ),
                                   ),
-                                  child: Text(
-                                    isSubscribed ? "Subscribed" : "Subscribe",
-                                    style: const TextStyle(
-                                      fontFamily: "Poppins",
+                                ),
+                              if (_userRole == "agent")
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: UpConfig.of(
+                                        context,
+                                      ).theme.primaryColor,
+                                    ),
+                                    color: const Color.fromARGB(
+                                      255,
+                                      247,
+                                      238,
+                                      255,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    child: Text(
+                                      policy.commission,
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 12,
+                                        color: UpConfig.of(
+                                          context,
+                                        ).theme.primaryColor,
+                                      ),
                                     ),
                                   ),
                                 ),

@@ -51,77 +51,93 @@ class _AgentHomePageState extends State<AgentHomePage> {
       body: SafeArea(
         child: isLoading
             ? const Center(child: UpCircularProgress())
-            : Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+            : SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              UpText(
+                                "Hello ${userData['name'].split(" ")[0]},",
+                                style: UpStyle(
+                                  textSize: 25,
+                                  textFontFamily: 'Sora',
+                                ),
+                              ),
+                              UpText(
+                                "Manage Smarter, Not Harder",
+                                style: UpStyle(
+                                  textSize: 13,
+                                  textColor: UpConfig.of(
+                                    context,
+                                  ).theme.baseColor.shade500,
+                                  textFontFamily: 'Poppins',
+                                ),
+                              ),
+                              UpText(
+                                "ID: ${userData['user_id']}",
+                                style: UpStyle(
+                                  textSize: 12,
+                                  textColor: UpConfig.of(
+                                    context,
+                                  ).theme.baseColor.shade500,
+                                  textFontFamily: 'Sora',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      HomeCardWidget(
+                        icon: Icons.group,
+                        title: "Client Management",
+                        iconColor: UpConfig.of(context).theme.primaryColor,
+                        onTap: () {
+                          ServiceManager<UpNavigationService>().navigateToNamed(
+                            Routes.clientManagementPage,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      HomeCardWidget(
+                        icon: Icons.receipt_long_rounded,
+                        title: "Records",
+                        iconColor: UpConfig.of(context).theme.primaryColor,
+                        onTap: () {
+                          ServiceManager<UpNavigationService>().navigateToNamed(
+                            Routes.agentRecordsPage,
+                            extra: {'agentId': userData['user_id']},
+                          );
+                        },
+                      ),
+              
+                      const SizedBox(height: 16),
+                      HomeCardWidget(
+                        icon: Icons.policy,
+                        title: "Policies",
+                        iconColor: UpConfig.of(context).theme.primaryColor,
+                        onTap: () {
+                          ServiceManager<UpNavigationService>().navigateToNamed(
+                            Routes.policyPage,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            UpText(
-                              "Hello ${userData['name'].split(" ")[0]},",
-                              style: UpStyle(
-                                textSize: 25,
-                                textFontFamily: 'Sora',
-                              ),
-                            ),
-                            UpText(
-                              "Manage Smarter, Not Harder",
-                              style: UpStyle(
-                                textSize: 13,
-                                textColor: UpConfig.of(
-                                  context,
-                                ).theme.baseColor.shade500,
-                                textFontFamily: 'Poppins',
-                              ),
-                            ),
-                            UpText(
-                              "ID: ${userData['user_id']}",
-                              style: UpStyle(
-                                textSize: 12,
-                                textColor: UpConfig.of(
-                                  context,
-                                ).theme.baseColor.shade500,
-                                textFontFamily: 'Sora',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    HomeCardWidget(
-                      icon: Icons.group,
-                      title: "Client Management",
-                      iconColor: UpConfig.of(context).theme.primaryColor,
-                      onTap: () {
-                        ServiceManager<UpNavigationService>().navigateToNamed(
-                          Routes.clientManagementPage,
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    HomeCardWidget(
-                      icon: Icons.policy,
-                      title: "Policies",
-                      iconColor: UpConfig.of(context).theme.primaryColor,
-                      onTap: () {
-                        ServiceManager<UpNavigationService>().navigateToNamed(
-                          Routes.policyPage,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
+            ),
       ),
     );
   }

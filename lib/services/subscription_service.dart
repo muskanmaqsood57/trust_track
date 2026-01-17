@@ -48,19 +48,61 @@ class SubscriptionService {
 
   /// Get all subscriptions of a user
   Future<List<Map<String, dynamic>>> getUserSubscriptions() async {
-  final user = _auth.currentUser;
-  if (user == null) return [];
+    final user = _auth.currentUser;
+    if (user == null) return [];
 
-  final snapshot = await _firestore
-      .collection("subscriptions")
-      .where("userId", isEqualTo: user.uid)
-      .where("status", isEqualTo: "active") // only active subscriptions
-      .get();
+    final snapshot = await _firestore
+        .collection("subscriptions")
+        .where("userId", isEqualTo: user.uid)
+        .where("status", isEqualTo: "active") // only active subscriptions
+        .get();
 
-  return snapshot.docs
-      .map((d) => {"id": d.id, ...d.data() as Map<String, dynamic>})
-      .toList();
-}
+    return snapshot.docs
+        .map((d) => {"id": d.id, ...d.data() as Map<String, dynamic>})
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getAgentSubscriptions(
+    String agentId,
+  ) async {
+    try {
+      // First get all clients under this agent
+      final clientsSnapshot = await _firestore
+          .collection("users")
+          .where("role", isEqualTo: "client")
+          .where("invited_user_id", isEqualTo: agentId)
+          .get();
+
+      final clientIds = clientsSnapshot.docs.map((d) => d.id).toList();
+      if (clientIds.isEmpty) return [];
+
+      // Now get all subscriptions of these clients
+      final subsSnapshot = await _firestore
+          .collection("subscriptions")
+          .where("userId", whereIn: clientIds)
+          .get();
+
+      return subsSnapshot.docs
+          .map((d) => {"id": d.id, ...d.data() as Map<String, dynamic>})
+          .toList();
+    } catch (e) {
+      throw Exception("Failed to fetch agent subscriptions: $e");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getUserSubscriptionsByUserId(
+    String userId,
+  ) async {
+    final snapshot = await _firestore
+        .collection("subscriptions")
+        .where("userId", isEqualTo: userId)
+        .where("status", isEqualTo: "active") // only active subscriptions
+        .get();
+
+    return snapshot.docs
+        .map((d) => {"id": d.id, ...d.data() as Map<String, dynamic>})
+        .toList();
+  }
 
   /// Unsubscribe or cancel a policy
   Future<void> unsubscribe(String subscriptionId) async {

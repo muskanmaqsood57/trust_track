@@ -14,6 +14,8 @@ class Routes {
   static const String clientManagementPage = "/client-management";
   static const String policyPage = "/policies";
   static const String subscribedPolicyPage = "/subscribed-policies";
+  static const String clientSubscriptionsPage = "/client-subscriptions";
+  static const String agentRecordsPage = "/agent-records";
   static const String login = "/login";
   static const String signup = "/signup";
 }

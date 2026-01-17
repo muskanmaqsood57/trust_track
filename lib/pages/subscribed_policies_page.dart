@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:trust_track/constants.dart';
 import 'package:trust_track/models/policy.dart';
 import 'package:trust_track/services/auth_service.dart';
 import 'package:trust_track/services/policies_services.dart';
 import 'package:trust_track/services/subscription_service.dart';
+import 'package:trust_track/widget/appbar.dart';
 
 class SubscribedPoliciesPage extends StatefulWidget {
   const SubscribedPoliciesPage({super.key});
@@ -114,7 +116,7 @@ class _SubscribedPoliciesPageState extends State<SubscribedPoliciesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("My Subscribed Policies")),
+      appBar: customAppBar(context, "Subscribed Policies", backRoute: Routes.policyPage),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _subscribedPolicies.isEmpty

@@ -5,6 +5,8 @@ import 'package:flutter_up/up_app.dart';
 import 'package:trust_track/authentication/loginsignup.dart';
 import 'package:trust_track/constants.dart';
 import 'package:trust_track/pages/agent/agent_homepage.dart';
+import 'package:trust_track/pages/agent/agent_records_page.dart';
+import 'package:trust_track/pages/agent/view_client_subscriptions_page.dart';
 import 'package:trust_track/pages/client/client_homepage.dart';
 import 'package:trust_track/pages/client_managment_page.dart';
 import 'package:trust_track/pages/initial_page.dart';
@@ -61,7 +63,7 @@ class _MyAppState extends State<MyApp> {
           UpRoute(
             path: Routes.clientManagementPage,
             pageBuilder: (BuildContext context, UpRouterState state) {
-              return ClientManagementPage(extra: state.extra);
+              return ClientManagementPage();
             },
             name: Routes.clientManagementPage,
           ),
@@ -78,6 +80,20 @@ class _MyAppState extends State<MyApp> {
               return SubscribedPoliciesPage();
             },
             name: Routes.subscribedPolicyPage,
+          ),
+          UpRoute(
+            path: Routes.clientSubscriptionsPage,
+            pageBuilder: (BuildContext context, UpRouterState state) {
+              return ViewClientSubscriptionsPage(extra: state.extra);
+            },
+            name: Routes.clientSubscriptionsPage,
+          ),
+          UpRoute(
+            path: Routes.agentRecordsPage,
+            pageBuilder: (BuildContext context, UpRouterState state) {
+              return AgentRecordsPage(extra: state.extra);
+            },
+            name: Routes.agentRecordsPage,
           ),
         ],
         title: 'Trust Track',

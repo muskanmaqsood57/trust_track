@@ -1,15 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_up/config/up_config.dart';
+import 'package:flutter_up/themes/up_style.dart';
+import 'package:flutter_up/widgets/up_icon.dart';
 import 'package:trust_track/services/auth_service.dart';
 import 'package:trust_track/constants.dart';
 import 'package:flutter_up/services/up_navigation.dart';
 import 'package:flutter_up/locator.dart';
 
-PreferredSizeWidget customAppBar(BuildContext context, String title) {
+PreferredSizeWidget customAppBar(BuildContext context, String title, {String? backRoute}) {
   final user = FirebaseAuth.instance.currentUser;
 
   return AppBar(
     backgroundColor: const Color.fromARGB(255, 240, 239, 247),
+      leading: backRoute != null ? Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 0, 10),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () {
+              ServiceManager<UpNavigationService>()
+                  .navigateToNamed(backRoute);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 0.5,
+                    color: UpConfig.of(context).theme.baseColor.shade500,
+                  ),
+                  borderRadius: BorderRadius.circular(8)),
+              child: UpIcon(
+                icon: Icons.chevron_left_rounded,
+                style: UpStyle(
+                  iconSize: 22,
+                  iconColor: UpConfig.of(context).theme.baseColor.shade500,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ) : null,
     elevation: 0,
     title: GestureDetector(
       onTap: () async {
